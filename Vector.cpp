@@ -1,6 +1,6 @@
 
-#include "Vector.h"
-#include "Quaternion.h"
+#include "Vector.hpp"
+#include "Quaternion.hpp"
 
 #include "Math.h"
 

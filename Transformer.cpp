@@ -1,8 +1,8 @@
 
 #include <math.h>
 
-#include "Transformer.h"
-#include "Vector.h"
+#include "Transformer.hpp"
+#include "Vector.hpp"
 
 #include "Math.h"
 

@@ -1,5 +1,5 @@
 
-#include "Quaternion.h"
+#include "Quaternion.hpp"
 
 #include "Math.h"
 

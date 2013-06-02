@@ -2,7 +2,7 @@
 #include <GL/glut.h>
 #include <iostream>
 
-#include "Camera.h"
+#include "Camera.hpp"
 #include "Math.h"
 
 using namespace std;

@@ -1,6 +1,6 @@
 
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef VECTOR_HPP
+#define VECTOR_HPP
 
 #include <initializer_list>
 #include <assert.h>
@@ -96,5 +96,22 @@ public:
 };
 
 std::ostream & operator<<(std::ostream &, const Vector3f &);
+
+struct Vertex {
+    Vector3f pos;
+    Vector2f tex;
+
+    Vertex() {}
+
+    Vertex(Vector3f pos, Vector2f tex)
+    :pos(pos), tex(tex) {}
+};
+
+inline Vector3f Vec(float x, float y, float z) {
+    return Vector3f(x,y,z);
+}
+inline Vector2f Vec(float x, float y) {
+    return Vector2f(x,y);
+}
 
 #endif

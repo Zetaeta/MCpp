@@ -1,5 +1,5 @@
 
-#include "Matrix.h"
+#include "Matrix.hpp"
 
 using std::cout;
 

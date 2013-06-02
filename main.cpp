@@ -8,11 +8,13 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-#include "Matrix.h"
-#include "Transformer.h"
-#include "Vector.h"
-#include "Camera.h"
+#include "Matrix.hpp"
+#include "Transformer.hpp"
+#include "Vector.hpp"
+#include "Camera.hpp"
 #include "Texture.hpp"
+#include "glvars.h"
+#include "Cube.hpp"
 
 
 #define WIDTH  1920
@@ -21,61 +23,8 @@
 using std::cerr;
 using std::cout;
 
-struct Vertex {
-    Vector3f pos;
-    Vector2f tex;
-
-    Vertex() {}
-
-    Vertex(Vector3f pos, Vector2f tex)
-    :pos(pos), tex(tex) {}
-};
-
-inline Vector3f Vec(float x, float y, float z) {
-    return Vector3f(x,y,z);
-}
-inline Vector2f Vec(float x, float y) {
-    return Vector2f(x,y);
-}
-
-Vertex vertices[] = {
-    Vertex(Vec(0.5f, 0.5f, 0.5f), Vec(1, 1)),  // 0
-    Vertex(Vec(0.5f, 0.5f, -0.5f), Vec(0,1)),  // 1
-    Vertex(Vec(0.5f, -0.5f, 0.5f), Vec(1,0)),  // 2
-    Vertex(Vec(0.5f, -0.5f, -0.5f), Vec(0,0)), // 3
-    Vertex(Vec(-0.5f, 0.5f, 0.5f), Vec(0,1)),  // 4
-    Vertex(Vec(-0.5f, 0.5f, -0.5f), Vec(1,1)), // 5
-    Vertex(Vec(-0.5f, -0.5f, 0.5f), Vec(0,0)), // 6
-    Vertex(Vec(-0.5f, -0.5f, -0.5f), Vec(1,0)),// 7
-
-    Vertex(Vec(-0.5f, 0.5f, -0.5f), Vec(0,0)), // 8: 5 with texture coordinates for top/bottom
-    Vertex(Vec(-0.5f, -0.5f, -0.5f), Vec(0,1)),// 9: 7 with texture coordinates for top/bottom
-};
 
 
-
-GLuint indices[] = {
-    // back & front
-    0, 4, 6,
-    0, 6, 2,
-
-    1, 3, 7,
-    1, 7, 5,
-
-    // bottom & top
-    2, 9, 3,
-    2, 6, 9,
-
-    0, 1, 8,
-    0, 8, 4,
-
-    // right & left
-    0, 2, 3,
-    0, 3, 1,
-
-    4, 7, 6,
-    4, 5, 7
-};
 
 
 
@@ -98,34 +47,42 @@ const char *fragmentShader = "\
 #version 330\n\
 out vec4 FragColor;\n\
 in vec2 texCoord0;\n\
-uniform sampler2D gSampler;\n\
+uniform sampler2D glslSampler;\n\
 void main() {\n\
-    FragColor = texture2D(gSampler, texCoord0.xy);\n\
+    FragColor = texture2D(glslSampler, texCoord0.xy);\n\
 }";
 
-GLuint vbo, ibo, shaderProgram;
-GLint transformUnif;
-GLuint gSampler;
+//GLuint vbo, ibo;
 Texture *texture;
 
 Camera *camera;
+Cube *cube, *cube2;
 
 void render() {
 
     camera->onRender();
 
+    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-    Transformer t;
+    Transformer &t = cube->getTransformer();
+    Transformer &t2 = cube2->getTransformer();
 
     static float rot = 0;
     rot += 0.01;
 
     float transf = sinf(rot);
-    t.translate(0, 0, 5);
-    t.setView(30.0f, WIDTH / HEIGHT, 1.0, 100);
-    t.cameraTranslate(camera->getPos());
-    t.cameraAngle(camera->getTarget(), camera->getUp());
-    glUniformMatrix4fv(transformUnif, 1, GL_TRUE, (const GLfloat *) &t.get());
+//    t.translate(0, 0, 5);
+//    t2.translate(1, 0.1, 5);
+//    t.cameraTranslate(camera->getPos());
+//    t.cameraAngle(camera->getTarget(), camera->getUp());
+
+    cube->setCamera(*camera);
+    cube2->setCamera(*camera);
+    cube->draw();
+    cube2->draw();
+/*
+    glUniformMatrix4fv(glslTransformation, 1, GL_TRUE, (const GLfloat *) &t.get());
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -135,14 +92,12 @@ void render() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     texture->bind(GL_TEXTURE0);
 
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClear(GL_DEPTH_BUFFER_BIT);
 
     glDrawElements(GL_TRIANGLES, 3 * 12, GL_UNSIGNED_INT, 0);
-//    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+*/
 
     glutSwapBuffers();
 
@@ -152,8 +107,15 @@ void render() {
 //    cout << glGetError() << '\n';
 }
 
+void initWorld() {
+    camera->setView(30.0f, 1.0, 100);
+    cube->setCoords(0, 0, 5);
+    cube2->setCoords(2, 1.0, 5);
+}
+
 void createBuffers() {
     
+/*
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -162,6 +124,7 @@ void createBuffers() {
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+*/
 //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 }
@@ -218,8 +181,8 @@ void addShaders() {
 
     glUseProgram(shaderProgram);
 
-    transformUnif = glGetUniformLocation(shaderProgram, "transformation");
-    gSampler = glGetUniformLocation(shaderProgram, "gSampler");
+    glslTransformation = glGetUniformLocation(shaderProgram, "transformation");
+    glslSampler = glGetUniformLocation(shaderProgram, "glslSampler");
 }
 
 
@@ -281,13 +244,17 @@ int main(int argc, char **argv) {
     createBuffers();
     addShaders();
 
-    glUniform1i(gSampler, 0);
+    glUniform1i(glslSampler, 0);
 
-    texture = new Texture(GL_TEXTURE_2D, "test.png");
+    texture = new Texture(GL_TEXTURE_2D, "stone.png");
     if (!texture->load()) {
         cout << "Failed loading\n";
         return 1;
     }
+    cube = new Cube(texture);
+    cube2 = new Cube(texture);
+
+    initWorld();
 
     glutMainLoop();
 }

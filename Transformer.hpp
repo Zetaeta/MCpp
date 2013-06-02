@@ -1,8 +1,9 @@
 
-#ifndef TRANSFORMER_H
-#define TRANSFORMER_H
+#ifndef TRANSFORMER_HPP
+#define TRANSFORMER_HPP
 
-#include "Matrix.h"
+#include "Matrix.hpp"
+#include "Camera.hpp"
 
 class Vector3f;
 
@@ -18,6 +19,12 @@ public:
     void cameraAngle(Vector3f target, Vector3f up);
 
     void setView(float fov, float aspect, float nearZ, float farZ);
+
+    void setCamera(Camera &camera) {
+        cameraTranslate(camera.getPos());
+        cameraAngle(camera.getTarget(), camera.getUp());
+        setView(camera.getFov(), camera.getAspectRatio(), camera.getNearZ(), camera.getFarZ());
+    }
 
     const Matrix4f & get();
 

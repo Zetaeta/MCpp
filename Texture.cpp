@@ -26,7 +26,7 @@ bool Texture::load() {
     //minification
     glTexParameterf(textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     //magnification
-    glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(textureTarget, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     return true;
 }
 
